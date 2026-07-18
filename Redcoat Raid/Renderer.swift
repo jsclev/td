@@ -7,25 +7,6 @@ import CoreGraphics
 @available(iOS 26.0, *)
 final class Renderer: NSObject, MTKViewDelegate {
 
-    // MARK: - Safe rect
-
-    /// The rectangle, expressed in the source image's own pixel
-    /// coordinates (top-left origin), that must always be fully visible
-    /// on screen no matter what device this runs on.
-    ///
-    /// The renderer fills the entire screen with the image (no
-    /// letterboxing) and crops in around this rect just enough to match
-    /// the device's aspect ratio. Screens wider than the safe rect (most
-    /// iPhones in landscape) reveal more of the image's left and right;
-    /// screens narrower than the safe rect (iPads in landscape) reveal
-    /// more of the top and bottom.
-    var safeRectOrigin = CGPoint(x: 345, y: 242)
-    var safeRectSize = CGSize(width: 2510, height: 1412)
-
-    private var safeRect: CGRect {
-        CGRect(origin: safeRectOrigin, size: safeRectSize)
-    }
-
     // MARK: - Metal objects
 
     private let device: any MTLDevice
@@ -387,83 +368,30 @@ final class Renderer: NSObject, MTKViewDelegate {
     }
 
     /// Computes the sub-rect of the source image, and rotation, that
-    /// should fill the given drawable size while always displaying in a
-    /// landscape orientation.
-    ///
-    /// The result always contains `safeRect` in its entirety. This app is
-    /// landscape-only, but iPadOS can still hand this a portrait-shaped
-    /// drawable (a resized multitasking window, or the device simply
-    /// rotated — iPadOS 26 requires apps to tolerate both rather than
-    /// letting them force full screen/orientation). Rather than
-    /// letterboxing or cropping into `safeRect` in that case, the crop is
-    /// still computed as if the screen were landscape, and the vertex
-    /// shader rotates the sampled image 90° to fill the portrait window —
-    /// so the image is always shown landscape, never upright-cropped.
+    /// should fill the given drawable size. See `CampaignMapLayout` for
+    /// the shared math (also used by the SwiftUI HUD to position nodes).
     private func makeCropUVRect(drawableSize: CGSize) -> CropResult {
-        let imageWidth = CGFloat(imageTexture.width)
-        let imageHeight = CGFloat(imageTexture.height)
-
-        let safeRect = safeRect
-        let rotateToLandscape = drawableSize.height > drawableSize.width
-
-        // The "long side over short side" ratio, treating the drawable as
-        // landscape no matter its actual orientation.
-        let screenAspect = rotateToLandscape
-            ? drawableSize.height / drawableSize.width
-            : drawableSize.width / drawableSize.height
-
-        let safeAspect = safeRect.width / safeRect.height
-
-        var cropWidth: CGFloat
-        var cropHeight: CGFloat
-
-        if screenAspect > safeAspect {
-            // The screen is proportionally wider than the safe rect
-            // (typical iPhone landscape) — widen the crop, revealing more
-            // of the image's left and right.
-            cropHeight = safeRect.height
-            cropWidth = cropHeight * screenAspect
-        } else {
-            // The screen is proportionally taller/narrower than the safe
-            // rect (typical iPad landscape) — heighten the crop, revealing
-            // more of the image's top and bottom.
-            cropWidth = safeRect.width
-            cropHeight = cropWidth / screenAspect
-        }
-
-        // The crop can never exceed the image's actual pixel bounds —
-        // there's no image data beyond its edges. If it's clamped here,
-        // the source image doesn't have enough bleed around safeRect for
-        // this screen's aspect ratio, and the image will be very slightly
-        // stretched on that axis rather than cropping into safeRect.
-        assert(
-            cropWidth <= imageWidth && cropHeight <= imageHeight,
-            "redcoat_raid_264ppi doesn't have enough bleed around " +
-            "safeRect to aspect-fill this screen without stretching. " +
-            "Extend the artwork's margins to fix this."
+        let imageSize = CGSize(
+            width: imageTexture.width,
+            height: imageTexture.height
         )
 
-        cropWidth = min(cropWidth, imageWidth)
-        cropHeight = min(cropHeight, imageHeight)
-
-        // Center the crop on safeRect, then shift (never shrink) it back
-        // inside the image bounds if that pushed it past an edge.
-        var cropOriginX = safeRect.midX - cropWidth / 2
-        var cropOriginY = safeRect.midY - cropHeight / 2
-
-        cropOriginX = min(max(cropOriginX, 0), imageWidth - cropWidth)
-        cropOriginY = min(max(cropOriginY, 0), imageHeight - cropHeight)
+        let crop = CampaignMapLayout.makeCrop(
+            imageSize: imageSize,
+            safeRect: CampaignMapAsset.safeRect,
+            viewSize: drawableSize
+        )
 
         let uvRect = SIMD4<Float>(
-            Float(cropOriginX / imageWidth),
-            Float(cropOriginY / imageHeight),
-            Float((cropOriginX + cropWidth) / imageWidth),
-            Float((cropOriginY + cropHeight) / imageHeight)
+            Float(crop.rect.minX / imageSize.width),
+            Float(crop.rect.minY / imageSize.height),
+            Float(crop.rect.maxX / imageSize.width),
+            Float(crop.rect.maxY / imageSize.height)
         )
 
         return CropResult(
             uvRect: uvRect,
-            rotateToLandscape: rotateToLandscape
+            rotateToLandscape: crop.rotated
         )
     }
 }
