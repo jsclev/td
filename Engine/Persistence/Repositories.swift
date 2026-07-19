@@ -236,7 +236,7 @@ public final class ContentRepository {
         }
     }
 
-    public func loadLevel(id: String) throws -> LevelDefinition {
+    public func loadLevel(id: String) throws -> Level {
         var header: (name: String, gold: Int, lives: Int)? = nil
         try db.query(
             "SELECT name, starting_gold, lives FROM levels WHERE id = ?;",
@@ -289,8 +289,12 @@ public final class ContentRepository {
         let waves = waveStarts.map { wi, start in
             Wave(startTime: start, spawns: spawnsByWave[wi] ?? [])
         }
+        
+        guard let id = UUID(uuidString: uuidString) else {
+            throw Error(message: "Unable to create \(msg) UUID for level.")
+        }
 
-        return LevelDefinition(
+        return Level(
             id: id,
             name: header.name,
             startingGold: header.gold,

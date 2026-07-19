@@ -90,7 +90,7 @@ public enum Batch {
     /// (one task per seed, each sim single-threaded) is the drop-in next step
     /// once throughput matters.
     public static func run(
-        level: LevelDefinition,
+        level: Level,
         catalog: ContentCatalog,
         baseSeed: UInt64,
         count: Int,

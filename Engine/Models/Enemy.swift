@@ -1,28 +1,5 @@
-// Enemy.swift
-// EnemyType is the authored definition (database-backed, encyclopedia-facing).
-// Enemy is the runtime instance: a flat struct kept in a contiguous array so
-// the tick loop stays cache-friendly and ARC-free.
+import Foundation
 
-public struct EnemyType: Codable, Sendable, Identifiable, Equatable {
-    public var id: String
-    public var name: String
-    public var stats: EnemyStats
-    public var traits: [Trait]
-
-    public init(id: String, name: String, stats: EnemyStats, traits: [Trait] = []) {
-        self.id = id
-        self.name = name
-        self.stats = stats
-        self.traits = traits
-    }
-
-    public func has(_ trait: Trait) -> Bool {
-        traits.contains(trait)
-    }
-}
-
-/// Runtime instance. `typeIndex` points into the ContentCatalog, which is the
-/// only indirection in the hot loop.
 public struct Enemy: Sendable {
     /// Stable identity for telemetry/debugging (monotonic per simulation).
     public var spawnID: Int

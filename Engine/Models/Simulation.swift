@@ -1,7 +1,6 @@
 public final class Simulation {
-    // Immutable inputs.
     public let catalog: ContentCatalog
-    public let level: LevelDefinition
+    public let level: Level
 
     // Mutable run state.
     public private(set) var time: Double = 0
@@ -53,7 +52,7 @@ public final class Simulation {
     // MARK: - Init
 
     public init(
-        level: LevelDefinition,
+        level: Level,
         catalog: ContentCatalog,
         policy: any CommanderPolicy,
         seed: UInt64

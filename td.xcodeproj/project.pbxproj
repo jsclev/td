@@ -6,7 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXCopyFilesBuildPhase section */
+		520082B5300C245B00DF4F64 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		520082B7300C245B00DF4F64 /* Simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		5263FCBD3002C99600C1546D /* Redcoat Raid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Redcoat Raid.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -36,9 +49,14 @@
 			path = Engine;
 			sourceTree = "<group>";
 		};
-		520082A8300C10D600DF4F64 /* Simulator */ = {
+		520082B8300C245B00DF4F64 /* Simulator */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Simulator;
+			sourceTree = "<group>";
+		};
+		5200839F300C399D00DF4F64 /* Db */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Db;
 			sourceTree = "<group>";
 		};
 		5263FCBF3002C99600C1546D /* Redcoat Raid */ = {
@@ -53,6 +71,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		520082B4300C245B00DF4F64 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5263FCBA3002C99600C1546D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -66,9 +91,10 @@
 		5263FCB43002C99600C1546D = {
 			isa = PBXGroup;
 			children = (
-				520082A8300C10D600DF4F64 /* Simulator */,
+				5200839F300C399D00DF4F64 /* Db */,
 				5200827F300C09D400DF4F64 /* Engine */,
 				5263FCBF3002C99600C1546D /* Redcoat Raid */,
+				520082B8300C245B00DF4F64 /* Simulator */,
 				5263FCBE3002C99600C1546D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				5263FCBD3002C99600C1546D /* Redcoat Raid.app */,
+				520082B7300C245B00DF4F64 /* Simulator */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,6 +111,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		520082B6300C245B00DF4F64 /* Simulator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 520082BB300C245B00DF4F64 /* Build configuration list for PBXNativeTarget "Simulator" */;
+			buildPhases = (
+				520082B3300C245B00DF4F64 /* Sources */,
+				520082B4300C245B00DF4F64 /* Frameworks */,
+				520082B5300C245B00DF4F64 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5200827F300C09D400DF4F64 /* Engine */,
+				520082B8300C245B00DF4F64 /* Simulator */,
+				5200839F300C399D00DF4F64 /* Db */,
+			);
+			name = Simulator;
+			packageProductDependencies = (
+			);
+			productName = Simulator;
+			productReference = 520082B7300C245B00DF4F64 /* Simulator */;
+			productType = "com.apple.product-type.tool";
+		};
 		5263FCBC3002C99600C1546D /* Redcoat Raid */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5263FCD23002C99800C1546D /* Build configuration list for PBXNativeTarget "Redcoat Raid" */;
@@ -98,7 +149,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				5200827F300C09D400DF4F64 /* Engine */,
-				520082A8300C10D600DF4F64 /* Simulator */,
+				5200839F300C399D00DF4F64 /* Db */,
 				5263FCBF3002C99600C1546D /* Redcoat Raid */,
 			);
 			name = "Redcoat Raid";
@@ -118,6 +169,9 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					520082B6300C245B00DF4F64 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					5263FCBC3002C99600C1546D = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -138,6 +192,7 @@
 			projectRoot = "";
 			targets = (
 				5263FCBC3002C99600C1546D /* Redcoat Raid */,
+				520082B6300C245B00DF4F64 /* Simulator */,
 			);
 		};
 /* End PBXProject section */
@@ -153,6 +208,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		520082B3300C245B00DF4F64 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5263FCB93002C99600C1546D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -163,6 +225,36 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		520082BC300C245B00DF4F64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SNJW4KBXLV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		520082BD300C245B00DF4F64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SNJW4KBXLV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		5263FCD33002C99800C1546D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -351,6 +443,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		520082BB300C245B00DF4F64 /* Build configuration list for PBXNativeTarget "Simulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				520082BC300C245B00DF4F64 /* Debug */,
+				520082BD300C245B00DF4F64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5263FCB83002C99600C1546D /* Build configuration list for PBXProject "td" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
