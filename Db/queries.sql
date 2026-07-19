@@ -10,5 +10,5 @@ INNER JOIN
     ON l.campaign_id = c.id
 ORDER BY
     c.parent_campaign_id,
+    c.campaign_name,
     l.campaign_sequence_num;
-.
