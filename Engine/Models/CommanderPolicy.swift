@@ -4,6 +4,7 @@
 // scripted build orders (regression suite / "intended solution" encoding).
 // A greedy heuristic bot and a build-order optimizer slot in behind the same
 // protocol later without touching the engine.
+import Foundation
 
 /// What happened when the policy tried to act. Policies use this to decide
 /// whether to wait (needGold) or move on (invalid).
@@ -23,7 +24,7 @@ public protocol CommanderPolicy {
 /// retries every tick until gold allows (or the action proves invalid).
 public struct ScriptedBuildOrder: CommanderPolicy, Sendable {
     public enum Action: Sendable, Equatable {
-        case build(slot: Int, towerID: String)
+        case build(slot: Int, towerID: UUID)
         case upgrade(slot: Int)
     }
 

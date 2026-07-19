@@ -1,8 +1,4 @@
-// Tower.swift
-// A tower level carries a full damage profile across the three families:
-// shot (vs cover), terror (vs discipline), and a contagion application
-// chance (vs hardiness). Most towers use one or two; the data model lets a
-// single tower mix all three so hybrids don't need special cases.
+import Foundation
 
 public enum Targeting: String, Codable, Sendable, CaseIterable {
     /// Furthest along the path (closest to your exit). The KR default.
@@ -58,12 +54,12 @@ public struct TowerLevel: Codable, Sendable, Equatable {
 }
 
 public struct TowerType: Codable, Sendable, Identifiable, Equatable {
-    public var id: String
+    public var id: UUID
     public var name: String
     /// levels[0] is the build; levels[1...] are upgrades.
     public var levels: [TowerLevel]
 
-    public init(id: String, name: String, levels: [TowerLevel]) {
+    public init(id: UUID, name: String, levels: [TowerLevel]) {
         self.id = id
         self.name = name
         self.levels = levels

@@ -75,7 +75,7 @@ public final class ContentRepository {
          damage_min, damage_max, gold, lives_cost, break_band_lo, break_band_hi, traits)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, [
-            .text(enemy.id), .text(enemy.name),
+            .text(enemy.id.uuidString), .text(enemy.name),
             .real(enemy.stats.maxHP), .real(enemy.stats.speed),
             .real(enemy.stats.cover), .real(enemy.stats.discipline),
             .real(enemy.stats.hardiness),
@@ -96,14 +96,17 @@ public final class ContentRepository {
                break_band_lo, break_band_hi, traits
         FROM enemy_types ORDER BY id;
         """) { r in
-            let id = r.text(0)
+            guard let id = UUID(uuidString: r.text(0)) else {
+                throw DbError.unableToCreateUuid
+            }
+            
             let traitsJSON = r.text(13)
             let traits: [Trait]
             if let data = traitsJSON.data(using: .utf8),
                let decoded = try? self.decoder.decode([Trait].self, from: data) {
                 traits = decoded
             } else {
-                badTraitsID = id
+                badTraitsID = id.uuidString
                 traits = []
             }
             let stats = EnemyStats(
@@ -132,11 +135,11 @@ public final class ContentRepository {
         try db.transaction {
             try db.run(
                 "INSERT OR REPLACE INTO tower_types (id, name) VALUES (?, ?);",
-                [.text(tower.id), .text(tower.name)]
+                [.text(tower.id.uuidString), .text(tower.name)]
             )
             try db.run(
                 "DELETE FROM tower_levels WHERE tower_id = ?;",
-                [.text(tower.id)]
+                [.text(tower.id.uuidString)]
             )
             for (i, lvl) in tower.levels.enumerated() {
                 try db.run("""
@@ -146,7 +149,7 @@ public final class ContentRepository {
                  aoe_radius, contagion_chance, targeting)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """, [
-                    .text(tower.id), .integer(i),
+                    .text(tower.id.uuidString), .integer(i),
                     .integer(lvl.cost), .real(lvl.range), .real(lvl.fireInterval),
                     .real(lvl.shotMin), .real(lvl.shotMax),
                     .real(lvl.terrorMin), .real(lvl.terrorMax),
@@ -158,17 +161,25 @@ public final class ContentRepository {
     }
 
     public func loadTowerTypes() throws -> [TowerType] {
-        var names: [String: String] = [:]
+        var names: [UUID: String] = [:]
         try db.query("SELECT id, name FROM tower_types;") { r in
-            names[r.text(0)] = r.text(1)
+            guard let id = UUID(uuidString: r.text(0)) else {
+                throw DbError.unableToCreateUuid
+            }
+            
+            names[id] = r.text(1)
         }
-        var levelsByTower: [String: [(Int, TowerLevel)]] = [:]
+        var levelsByTower: [UUID: [(Int, TowerLevel)]] = [:]
         try db.query("""
         SELECT tower_id, level, cost, range, fire_interval,
                shot_min, shot_max, terror_min, terror_max,
                aoe_radius, contagion_chance, targeting
         FROM tower_levels ORDER BY tower_id, level;
         """) { r in
+            guard let towerId = UUID(uuidString: r.text(0)) else {
+                throw DbError.unableToCreateUuid
+            }
+            
             let lvl = TowerLevel(
                 cost: Int(r.int(2)),
                 range: r.double(3),
@@ -181,7 +192,8 @@ public final class ContentRepository {
                 contagionChance: r.double(10),
                 targeting: Targeting(rawValue: r.text(11)) ?? .first
             )
-            levelsByTower[r.text(0), default: []].append((Int(r.int(1)), lvl))
+            
+            levelsByTower[towerId, default: []].append((Int(r.int(1)), lvl))
         }
         return names.map { id, name in
             let levels = (levelsByTower[id] ?? [])
@@ -193,32 +205,32 @@ public final class ContentRepository {
 
     // MARK: Levels
 
-    public func save(_ level: LevelDefinition) throws {
+    public func save(_ level: Level) throws {
         try db.transaction {
             // ON DELETE CASCADE clears children.
-            try db.run("DELETE FROM levels WHERE id = ?;", [.text(level.id)])
+            try db.run("DELETE FROM levels WHERE id = ?;", [.text(level.id.uuidString)])
             try db.run(
                 "INSERT INTO levels (id, name, starting_gold, lives) VALUES (?, ?, ?, ?);",
-                [.text(level.id), .text(level.name),
-                 .integer(level.startingGold), .integer(level.lives)]
+                [.text(level.id.uuidString), .text(level.name),
+                 .integer(level.startingMoney), .integer(level.lives)]
             )
             for (i, path) in level.paths.enumerated() {
                 try db.run(
                     "INSERT INTO level_paths (level_id, path_index, points) VALUES (?, ?, ?);",
-                    [.text(level.id), .integer(i), .blob(PointBlob.pack(path.points))]
+                    [.text(level.id.uuidString), .integer(i), .blob(PointBlob.pack(path.points))]
                 )
             }
-            for slot in level.slots {
+            for slot in level.towerSlots {
                 try db.run(
                     "INSERT INTO tower_slots (level_id, slot_index, x, y) VALUES (?, ?, ?, ?);",
-                    [.text(level.id), .integer(slot.index),
+                    [.text(level.id.uuidString), .integer(slot.index),
                      .real(slot.position.x), .real(slot.position.y)]
                 )
             }
             for (wi, wave) in level.waves.enumerated() {
                 try db.run(
                     "INSERT INTO waves (level_id, wave_index, start_time) VALUES (?, ?, ?);",
-                    [.text(level.id), .integer(wi), .real(wave.startTime)]
+                    [.text(level.id.uuidString), .integer(wi), .real(wave.startTime)]
                 )
                 for (si, spawn) in wave.spawns.enumerated() {
                     try db.run("""
@@ -226,8 +238,8 @@ public final class ContentRepository {
                     (level_id, wave_index, spawn_index, enemy_type_id, count, interval, delay, path_index)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                     """, [
-                        .text(level.id), .integer(wi), .integer(si),
-                        .text(spawn.enemyTypeID), .integer(spawn.count),
+                        .text(level.id.uuidString), .integer(wi), .integer(si),
+                        .text(spawn.enemyTypeID.uuidString), .integer(spawn.count),
                         .real(spawn.interval), .real(spawn.delay),
                         .integer(spawn.pathIndex),
                     ])
@@ -236,30 +248,38 @@ public final class ContentRepository {
         }
     }
 
-    public func loadLevel(id: String) throws -> Level {
-        var header: (name: String, gold: Int, lives: Int)? = nil
+    public func loadLevel(optionalId: UUID?) throws -> Level {
+        guard let id = optionalId else {
+            throw RepositoryError.levelNotFound("<unknown>")
+        }
+        
+        var header: (id: UUID, name: String, gold: Int, lives: Int)? = nil
         try db.query(
             "SELECT name, starting_gold, lives FROM levels WHERE id = ?;",
-            [.text(id)]
+            [.text(id.uuidString)]
         ) { r in
-            header = (r.text(0), Int(r.int(1)), Int(r.int(2)))
+            guard let id = UUID(uuidString: r.text(0)) else {
+                throw DbError.unableToCreateUuid
+            }
+            
+            header = (id, r.text(0), Int(r.int(1)), Int(r.int(2)))
         }
-        guard let header else { throw RepositoryError.levelNotFound(id) }
+        guard let header else { throw RepositoryError.levelNotFound(id.uuidString) }
 
         var paths: [Path] = []
         try db.query(
             "SELECT points FROM level_paths WHERE level_id = ? ORDER BY path_index;",
-            [.text(id)]
+            [.text(id.uuidString)]
         ) { r in
             paths.append(Path(points: PointBlob.unpack(r.blob(0))))
         }
 
-        var slots: [TowerSlot] = []
+        var towerSlots: [TowerSlot] = []
         try db.query(
             "SELECT slot_index, x, y FROM tower_slots WHERE level_id = ? ORDER BY slot_index;",
-            [.text(id)]
+            [.text(id.uuidString)]
         ) { r in
-            slots.append(TowerSlot(
+            towerSlots.append(TowerSlot(
                 index: Int(r.int(0)),
                 position: Point(r.double(1), r.double(2))
             ))
@@ -268,7 +288,7 @@ public final class ContentRepository {
         var waveStarts: [(Int, Double)] = []
         try db.query(
             "SELECT wave_index, start_time FROM waves WHERE level_id = ? ORDER BY wave_index;",
-            [.text(id)]
+            [.text(id.uuidString)]
         ) { r in
             waveStarts.append((Int(r.int(0)), r.double(1)))
         }
@@ -277,9 +297,13 @@ public final class ContentRepository {
         SELECT wave_index, enemy_type_id, count, interval, delay, path_index
         FROM wave_spawns WHERE level_id = ?
         ORDER BY wave_index, spawn_index;
-        """, [.text(id)]) { r in
+        """, [.text(id.uuidString)]) { r in
+            guard let enemyTypeId = UUID(uuidString: r.text(1)) else {
+                throw DbError.unableToCreateUuid
+            }
+            
             spawnsByWave[Int(r.int(0)), default: []].append(SpawnEntry(
-                enemyTypeID: r.text(1),
+                enemyTypeID: enemyTypeId,
                 count: Int(r.int(2)),
                 interval: r.double(3),
                 delay: r.double(4),
@@ -290,17 +314,14 @@ public final class ContentRepository {
             Wave(startTime: start, spawns: spawnsByWave[wi] ?? [])
         }
         
-        guard let id = UUID(uuidString: uuidString) else {
-            throw Error(message: "Unable to create \(msg) UUID for level.")
-        }
-
         return Level(
-            id: id,
+            id: header.id,
             name: header.name,
-            startingGold: header.gold,
+            campaignSequenceNum: 1,
+            startingMoney: header.gold,
             lives: header.lives,
             paths: paths,
-            slots: slots,
+            towerSlots: towerSlots,
             waves: waves
         )
     }

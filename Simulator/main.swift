@@ -11,7 +11,7 @@ import Foundation
 struct Options {
     var dbPath = "revwar.sqlite"
     var inMemory = false
-    var levelID = "concord_road"
+    var levelID = UUID(uuidString: "")
     var seeds = 200
     var baseSeed: UInt64 = 1776
     var reset = false
@@ -32,7 +32,7 @@ func printUsage() {
     """)
 }
 
-func parseOptions() -> Options? {
+func parseOptions() throws -> Options? {
     var opts = Options()
     var args = ArraySlice(CommandLine.arguments.dropFirst())
     while let arg = args.popFirst() {
@@ -44,7 +44,11 @@ func parseOptions() -> Options? {
             opts.inMemory = true
         case "--level":
             guard let v = args.popFirst() else { return nil }
-            opts.levelID = v
+            guard let uuid = UUID(uuidString: v) else {
+                throw DbError.unableToCreateUuid
+            }
+            
+            opts.levelID = uuid
         case "--seeds":
             guard let v = args.popFirst(), let n = Int(v), n > 0 else { return nil }
             opts.seeds = n
@@ -66,22 +70,22 @@ func parseOptions() -> Options? {
 
 // MARK: - Demo build order (the "intended solution" for concord_road)
 
-func demoBuildOrder() -> ScriptedBuildOrder {
-    ScriptedBuildOrder(steps: [
-        .init(time: 0, action: .build(slot: 2, towerID: "minuteman_post")),
-        .init(time: 0, action: .build(slot: 1, towerID: "volley_line")),
-        .init(time: 25, action: .build(slot: 4, towerID: "long_rifles")),
-        .init(time: 60, action: .build(slot: 3, towerID: "field_cannon")),
-        .init(time: 95, action: .upgrade(slot: 1)),
-        .init(time: 115, action: .upgrade(slot: 2)),
-        .init(time: 150, action: .upgrade(slot: 3)),
-        .init(time: 170, action: .upgrade(slot: 4)),
-    ])
-}
+//func demoBuildOrder() -> ScriptedBuildOrder {
+//    ScriptedBuildOrder(steps: [
+//        .init(time: 0, action: .build(slot: 2, towerID: "minuteman_post")),
+//        .init(time: 0, action: .build(slot: 1, towerID: "volley_line")),
+//        .init(time: 25, action: .build(slot: 4, towerID: "long_rifles")),
+//        .init(time: 60, action: .build(slot: 3, towerID: "field_cannon")),
+//        .init(time: 95, action: .upgrade(slot: 1)),
+//        .init(time: 115, action: .upgrade(slot: 2)),
+//        .init(time: 150, action: .upgrade(slot: 3)),
+//        .init(time: 170, action: .upgrade(slot: 4)),
+//    ])
+//}
 
 // MARK: - Main
 
-guard let opts = parseOptions() else {
+guard let opts = try parseOptions() else {
     printUsage()
     exit(2)
 }
@@ -101,7 +105,7 @@ do {
     }
 
     let catalog = try repo.loadCatalog()
-    let level = try repo.loadLevel(id: opts.levelID)
+    let level = try repo.loadLevel(optionalId: opts.levelID)
 
     print("""
 
@@ -112,35 +116,35 @@ do {
     """)
 
     let started = Date()
-    let report = try Batch.run(
-        level: level,
-        catalog: catalog,
-        baseSeed: opts.baseSeed,
-        count: opts.seeds,
-        makePolicy: { _ in demoBuildOrder() }
-    )
-    let elapsed = Date().timeIntervalSince(started)
+//    let report = try Batch.run(
+//        level: level,
+//        catalog: catalog,
+//        baseSeed: opts.baseSeed,
+//        count: opts.seeds,
+//        makePolicy: { _ in demoBuildOrder() }
+//    )
+//    let elapsed = Date().timeIntervalSince(started)
+//
+//    let pct = { (v: Double) in String(format: "%.1f%%", v * 100) }
+//    print("""
+//    outcome: \(report.victories) victories / \(report.defeats) defeats / \(report.timeouts) timeouts  (win rate \(pct(report.winRate)))
+//    lives remaining  p5: \(String(format: "%.0f", report.livesPercentile(5)))   p50: \(String(format: "%.0f", report.livesPercentile(50)))   p95: \(String(format: "%.0f", report.livesPercentile(95)))
+//    fates:   killed \(report.totalKilled) · routed \(report.totalRouted) · captured \(report.totalCaptured) · leaked \(report.totalLeaked)
+//    rout share of removals: \(pct(report.routShare))
+//    """)
 
-    let pct = { (v: Double) in String(format: "%.1f%%", v * 100) }
-    print("""
-    outcome: \(report.victories) victories / \(report.defeats) defeats / \(report.timeouts) timeouts  (win rate \(pct(report.winRate)))
-    lives remaining  p5: \(String(format: "%.0f", report.livesPercentile(5)))   p50: \(String(format: "%.0f", report.livesPercentile(50)))   p95: \(String(format: "%.0f", report.livesPercentile(95)))
-    fates:   killed \(report.totalKilled) · routed \(report.totalRouted) · captured \(report.totalCaptured) · leaked \(report.totalLeaked)
-    rout share of removals: \(pct(report.routShare))
-    """)
+//    print("wave pressure (mean max progress toward exit):")
+//    for (i, v) in report.meanWaveMaxProgress.enumerated() {
+//        let filled = max(0, min(30, Int((v * 30).rounded())))
+//        let bar = String(repeating: "█", count: filled)
+//            + String(repeating: "·", count: 30 - filled)
+//        let prefix = String(format: "  wave %2d  ", i + 1)
+//        let suffix = String(format: " %5.1f%%", v * 100)
+//        print(prefix + bar + suffix)
+//    }
 
-    print("wave pressure (mean max progress toward exit):")
-    for (i, v) in report.meanWaveMaxProgress.enumerated() {
-        let filled = max(0, min(30, Int((v * 30).rounded())))
-        let bar = String(repeating: "█", count: filled)
-            + String(repeating: "·", count: 30 - filled)
-        let prefix = String(format: "  wave %2d  ", i + 1)
-        let suffix = String(format: " %5.1f%%", v * 100)
-        print(prefix + bar + suffix)
-    }
-
-    let rate = elapsed > 0 ? Double(opts.seeds) / elapsed : 0
-    print(String(format: "\n%d sims in %.2fs (%.1f sims/sec)", opts.seeds, elapsed, rate))
+//    let rate = elapsed > 0 ? Double(opts.seeds) / elapsed : 0
+//    print(String(format: "\n%d sims in %.2fs (%.1f sims/sec)", opts.seeds, elapsed, rate))
     print("──────────────────────────────────────────────────────\n")
 } catch {
     FileHandle.standardError.write(Data("revsim error: \(error)\n".utf8))

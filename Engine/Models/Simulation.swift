@@ -1,3 +1,5 @@
+import Foundation
+
 public final class Simulation {
     public let catalog: ContentCatalog
     public let level: Level
@@ -60,9 +62,9 @@ public final class Simulation {
         self.level = level
         self.catalog = catalog
         self.policy = policy
-        self.gold = level.startingGold
+        self.gold = level.startingMoney
         self.lives = level.lives
-        self.towers = Array(repeating: nil, count: level.slots.count)
+        self.towers = Array(repeating: nil, count: level.towerSlots.count)
         self.fatesByType = Array(
             repeating: [0, 0, 0, 0],
             count: catalog.enemyTypes.count
@@ -100,7 +102,7 @@ public final class Simulation {
     }
 
     public enum SimulationError: Error, CustomStringConvertible {
-        case badPathIndex(Int, level: String)
+        case badPathIndex(Int, level: UUID)
 
         public var description: String {
             switch self {
@@ -122,7 +124,7 @@ public final class Simulation {
     // MARK: - Build API (called by policies)
 
     @discardableResult
-    public func build(slot: Int, towerID: String) -> BuildResult {
+    public func build(slot: Int, towerID: UUID) -> BuildResult {
         guard slot >= 0, slot < towers.count, towers[slot] == nil,
               let typeIndex = catalog.towerIndex(id: towerID),
               let first = catalog.towerTypes[typeIndex].levels.first
@@ -241,7 +243,7 @@ public final class Simulation {
                     let type = catalog.towerTypes[tower.typeIndex]
                     let lvl = type.levels[tower.level]
                     if let target = selectTarget(
-                        from: level.slots[slot].position,
+                        from: level.towerSlots[slot].position,
                         range: lvl.range,
                         targeting: lvl.targeting
                     ) {
@@ -535,7 +537,7 @@ public final class Simulation {
     // MARK: - Result
 
     private func makeResult() -> SimulationResult {
-        var perType: [String: SimulationResult.TypeFates] = [:]
+        var perType: [UUID: SimulationResult.TypeFates] = [:]
         for (i, type) in catalog.enemyTypes.enumerated() {
             let f = fatesByType[i]
             if f[0] + f[1] + f[2] + f[3] > 0 {

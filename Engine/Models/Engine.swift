@@ -14,17 +14,16 @@
 //   8. movement & exits     (routs run backwards; leaks cost lives)
 //   9. compaction           (order-preserving removal)
 //  10. end conditions
-
-
+import Foundation
 
 /// Telemetry seam. No-op today; a recorder conforms to this later and the
 /// engine never changes. Events are deliberately coarse-grained.
 public enum SimEvent: Sendable {
     case waveStarted(index: Int)
-    case towerBuilt(slot: Int, towerID: String)
+    case towerBuilt(slot: Int, towerID: UUID)
     case towerUpgraded(slot: Int, level: Int)
-    case enemySpawned(spawnID: Int, typeID: String)
-    case enemyRemoved(spawnID: Int, typeID: String, fate: EnemyFate)
+    case enemySpawned(spawnID: Int, typeID: UUID)
+    case enemyRemoved(spawnID: Int, typeID: UUID, fate: EnemyFate)
 }
 
 public protocol SimulationObserver: AnyObject {

@@ -1,8 +1,4 @@
-// Report.swift
-// Per-run results and seed-batch aggregation. The batch report speaks in
-// percentiles, never averages: morale cascades and contagion make seeds
-// diverge, and a level that's fine at the median but unwinnable on 5% of
-// seeds is a one-star-review generator.
+import Foundation
 
 public struct SimulationResult: Sendable, Codable {
     public struct TypeFates: Sendable, Codable {
@@ -21,7 +17,7 @@ public struct SimulationResult: Sendable, Codable {
     public var routed: Int
     public var captured: Int
     public var leaked: Int
-    public var fatesByTypeID: [String: TypeFates]
+    public var fatesByTypeID: [UUID: TypeFates]
     public var waveMaxProgress: [Double]
 }
 

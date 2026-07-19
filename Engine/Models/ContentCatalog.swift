@@ -1,14 +1,11 @@
-// ContentCatalog.swift
-// Immutable content snapshot for a run. String IDs (stable, DB-friendly,
-// mod-friendly) are resolved once into dense Int indices; the hot loop only
-// ever touches the arrays.
+import Foundation
 
 public struct ContentCatalog: Sendable {
     public let enemyTypes: [EnemyType]
     public let towerTypes: [TowerType]
 
-    private let enemyIndexByID: [String: Int]
-    private let towerIndexByID: [String: Int]
+    private let enemyIndexByID: [UUID: Int]
+    private let towerIndexByID: [UUID: Int]
 
     public init(enemyTypes: [EnemyType], towerTypes: [TowerType]) {
         // Sort for deterministic index assignment regardless of source order.
@@ -16,22 +13,22 @@ public struct ContentCatalog: Sendable {
         let towers = towerTypes.sorted { $0.id < $1.id }
         self.enemyTypes = enemies
         self.towerTypes = towers
-        var em: [String: Int] = [:]
+        var em: [UUID: Int] = [:]
         em.reserveCapacity(enemies.count)
         for (i, e) in enemies.enumerated() { em[e.id] = i }
-        var tm: [String: Int] = [:]
+        var tm: [UUID: Int] = [:]
         tm.reserveCapacity(towers.count)
         for (i, t) in towers.enumerated() { tm[t.id] = i }
         self.enemyIndexByID = em
         self.towerIndexByID = tm
     }
 
-    public func enemyIndex(id: String) -> Int? { enemyIndexByID[id] }
-    public func towerIndex(id: String) -> Int? { towerIndexByID[id] }
+    public func enemyIndex(id: UUID) -> Int? { enemyIndexByID[id] }
+    public func towerIndex(id: UUID) -> Int? { towerIndexByID[id] }
 
     public enum CatalogError: Error, CustomStringConvertible {
-        case unknownEnemyType(String)
-        case unknownTowerType(String)
+        case unknownEnemyType(UUID)
+        case unknownTowerType(UUID)
 
         public var description: String {
             switch self {
@@ -41,12 +38,12 @@ public struct ContentCatalog: Sendable {
         }
     }
 
-    public func requireEnemyIndex(id: String) throws -> Int {
+    public func requireEnemyIndex(id: UUID) throws -> Int {
         guard let i = enemyIndexByID[id] else { throw CatalogError.unknownEnemyType(id) }
         return i
     }
 
-    public func requireTowerIndex(id: String) throws -> Int {
+    public func requireTowerIndex(id: UUID) throws -> Int {
         guard let i = towerIndexByID[id] else { throw CatalogError.unknownTowerType(id) }
         return i
     }
