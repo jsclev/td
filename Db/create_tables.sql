@@ -1,5 +1,5 @@
 CREATE TABLE enemy_type (
-    id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
     enemy_type_name TEXT NOT NULL,
     max_hp REAL NOT NULL,
     speed REAL NOT NULL,
@@ -16,12 +16,12 @@ CREATE TABLE enemy_type (
 );
 
 CREATE TABLE tower_type (
-    id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
     tower_type_name TEXT NOT NULL
 );
 
 -- CREATE TABLE tower (
---     id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),
+--     id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
 --     level            INTEGER NOT NULL,
 --     cost             INTEGER NOT NULL,
 --     range            REAL NOT NULL,
@@ -35,10 +35,19 @@ CREATE TABLE tower_type (
 --     targeting        TEXT NOT NULL DEFAULT 'first'
 -- );
 
+CREATE TABLE campaign (
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
+    campaign_name TEXT NOT NULL,
+    parent_campaign_id TEXT REFERENCES campaign (id)
+);
+
 CREATE TABLE level (
-    id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),
-    level_name TEXT NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
+    campaign_id TEXT NOT NULL REFERENCES campaign (id),
     campaign_sequence_num INTEGER NOT NULL CHECK (campaign_sequence_num >= 0),
+    level_name TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
     starting_money INTEGER NOT NULL CHECK (starting_money > 0),
     num_lives INTEGER NOT NULL CHECK (num_lives > 0)
 );

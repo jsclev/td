@@ -1,2 +1,2 @@
 [sqlfluff]
-max_line_length = 110
+max_line_length = 150

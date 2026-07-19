@@ -3,10 +3,7 @@
 // first run, replays one level across N seeds with a scripted build order, and
 // prints the balance report: win rate, lives percentiles, fate breakdown,
 // rout share, and the per-wave tension trace.
-
 import Foundation
-
-// MARK: - Arguments
 
 struct Options {
     var dbPath = "revwar.sqlite"
@@ -115,7 +112,7 @@ do {
     runs:    \(opts.seeds) seeds starting at \(opts.baseSeed)
     """)
 
-    let started = Date()
+//    let started = Date()
 //    let report = try Batch.run(
 //        level: level,
 //        catalog: catalog,
