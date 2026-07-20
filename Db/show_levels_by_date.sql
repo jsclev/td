@@ -1,7 +1,6 @@
 SELECT
-    c.campaign_name,
-    l.campaign_sequence_num,
-    l.level_name,
+    l.level_name AS 'Battle',
+    c.campaign_name AS 'Campaign',
     CASE strftime('%w', l.started_at)
         WHEN '0' THEN 'Sunday'
         WHEN '1' THEN 'Monday'
@@ -20,7 +19,7 @@ SELECT
     END
     || strftime(' %e, %Y ', l.started_at)
     || ltrim(strftime('%I', l.started_at), '0')
-    || strftime(' %P', l.started_at) AS started_at_formatted,
+    || strftime(' %P', l.started_at) AS "Start",
     CASE strftime('%w', l.ended_at)
         WHEN '0' THEN 'Sunday'
         WHEN '1' THEN 'Monday'
@@ -39,7 +38,8 @@ SELECT
     END
     || strftime(' %e, %Y ', l.ended_at)
     || ltrim(strftime('%I', l.ended_at), '0')
-    || strftime(' %P', l.ended_at) AS ended_at_formatted
+    || strftime(' %P', l.ended_at) AS "End",
+    printf('%.2f', julianday(l.ended_at) - julianday(l.started_at)) || ' days' AS duration_in_days
 FROM
     level_info AS l
 INNER JOIN
@@ -47,4 +47,5 @@ INNER JOIN
     ON l.campaign_id = c.id
 ORDER BY
     c.parent_campaign_id,
-    l.campaign_sequence_num;
+    l.started_at,
+    c.campaign_name;

@@ -44,7 +44,6 @@ CREATE TABLE campaign (
 CREATE TABLE level_info (
     id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
     campaign_id TEXT NOT NULL REFERENCES campaign (id),
-    campaign_sequence_num INTEGER NOT NULL CHECK (campaign_sequence_num >= 0),
     level_name TEXT NOT NULL,
     x REAL NOT NULL,
     y REAL NOT NULL,
