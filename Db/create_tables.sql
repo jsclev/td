@@ -41,13 +41,15 @@ CREATE TABLE campaign (
     parent_campaign_id TEXT REFERENCES campaign (id)
 );
 
-CREATE TABLE level (
+CREATE TABLE level_info (
     id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
     campaign_id TEXT NOT NULL REFERENCES campaign (id),
     campaign_sequence_num INTEGER NOT NULL CHECK (campaign_sequence_num >= 0),
     level_name TEXT NOT NULL,
     x REAL NOT NULL,
     y REAL NOT NULL,
+    started_at REAL NOT NULL,
+    ended_at REAL NOT NULL,
     starting_money INTEGER NOT NULL CHECK (starting_money > 0),
     num_lives INTEGER NOT NULL CHECK (num_lives > 0)
 );
