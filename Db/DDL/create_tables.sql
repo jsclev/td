@@ -45,8 +45,8 @@ CREATE TABLE level_info (
     id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
     campaign_id TEXT NOT NULL REFERENCES campaign (id),
     level_name TEXT NOT NULL,
-    x REAL NOT NULL,
-    y REAL NOT NULL,
+    world_map_x REAL NOT NULL,
+    world_map_y REAL NOT NULL,
     started_at REAL NOT NULL,
     ended_at REAL NOT NULL,
     starting_money INTEGER NOT NULL CHECK (starting_money > 0),
@@ -60,13 +60,12 @@ CREATE TABLE level_info (
 --     PRIMARY KEY (level_id, path_index)
 -- );
 
--- CREATE TABLE tower_slot (
---     id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),
---     slot_index INTEGER NOT NULL,
---     x REAL NOT NULL,
---     y REAL NOT NULL,
---     PRIMARY KEY (level_id, slot_index)
--- );
+CREATE TABLE tower_slot (
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
+    level_info_id TEXT NOT NULL REFERENCES level_info (id),
+    map_position_x REAL NOT NULL,
+    map_position_y REAL NOT NULL
+);
 
 -- CREATE TABLE wave (
 --     id TEXT PRIMARY KEY NOT NULL CHECK (length(id) = 36),

@@ -2,7 +2,11 @@ import Foundation
 import SQLite3
 
 public class LevelInfoDAO: BaseDAO {
-    init(conn: OpaquePointer?) {
+    private let towerSlotDao: TowerSlotDAO
+
+    init(conn: OpaquePointer?, towerSlotDao: TowerSlotDAO) {
+        self.towerSlotDao = towerSlotDao
+        
         super.init(conn: conn, table: "level_info", loggerName: LevelInfoDAO.self)
     }
     
@@ -53,7 +57,7 @@ public class LevelInfoDAO: BaseDAO {
 //        throw DbError.Db(message: "No city with city_id = \(id).")
 //    }
     
-    public func getBy(name: String) throws -> LevelInfo {
+    public func getBy(id: UUID) throws -> LevelInfo {
         var stmt: OpaquePointer?
         let sql = getCleanedSql("""
             SELECT
@@ -70,11 +74,14 @@ public class LevelInfoDAO: BaseDAO {
             INNER JOIN
                 campaign c ON c.id = l.campaign_id
             WHERE
-                l.level_name = ?
+                l.id = ?
         """)
         
         try prepare(conn: conn, stmt: &stmt, sql: sql)
-        try bindParam(stmt, index: 1, value: name)
+        
+        guard sqlite3_bind_text(stmt, 1, id.uuidString.lowercased(), -1, SQLITE_TRANSIENT) == SQLITE_OK else {
+            throw DbError.Db(message: "Unable to bind level info id")
+        }
         
         if sqlite3_step(stmt) == SQLITE_ROW {
 
@@ -90,6 +97,8 @@ public class LevelInfoDAO: BaseDAO {
 
                 sqlite3_finalize(stmt)
                 stmt = nil
+                
+                let towerSlots = try towerSlotDao.getTowerSlotsFor(levelInfoId: id)
 
                 return LevelInfo(id: levelInfoId,
                                  name: levelName,
@@ -99,7 +108,7 @@ public class LevelInfoDAO: BaseDAO {
                                  startingMoney: startingMoney,
                                  numStartingLives: numStartingLives,
                                  paths: [],
-                                 towerSlots: [],
+                                 towerSlots: towerSlots,
                                  waves: [])
             }
         }
@@ -107,7 +116,7 @@ public class LevelInfoDAO: BaseDAO {
         sqlite3_finalize(stmt)
         stmt = nil
 
-        throw DbError.Db(message: "No level info with name = \(name).")
+        throw DbError.Db(message: "No level info with id = \(id.uuidString.lowercased()).")
     }
     
 //    public func insert(player: Player, name: String, tile: Tile, theme: Theme) throws -> CityDTO {

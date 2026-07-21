@@ -65,23 +65,6 @@ func parseOptions() throws -> Options? {
     return opts
 }
 
-// MARK: - Demo build order (the "intended solution" for concord_road)
-
-//func demoBuildOrder() -> ScriptedBuildOrder {
-//    ScriptedBuildOrder(steps: [
-//        .init(time: 0, action: .build(slot: 2, towerID: "minuteman_post")),
-//        .init(time: 0, action: .build(slot: 1, towerID: "volley_line")),
-//        .init(time: 25, action: .build(slot: 4, towerID: "long_rifles")),
-//        .init(time: 60, action: .build(slot: 3, towerID: "field_cannon")),
-//        .init(time: 95, action: .upgrade(slot: 1)),
-//        .init(time: 115, action: .upgrade(slot: 2)),
-//        .init(time: 150, action: .upgrade(slot: 3)),
-//        .init(time: 170, action: .upgrade(slot: 4)),
-//    ])
-//}
-
-// MARK: - Main
-
 guard let opts = try parseOptions() else {
     printUsage()
     exit(2)
@@ -92,10 +75,13 @@ do {
         try? FileManager.default.removeItem(atPath: opts.dbPath)
     }
 
-    let path = opts.inMemory ? ":memory:" : opts.dbPath
     let db = Db(dbPath: Db.getAbsolutePathToDb(dbFilename: "redcoat_raid", fullRefresh: false), fullRefresh: false)
     
-    let levelInfo = try db.levelInfoDao.getBy(name: "Lexington and Concord")
+    guard let levelInfoId = UUID(uuidString: "be3cf809-f71e-4209-bc4d-8b25b0b5f2a0") else {
+        throw DbError.Db(message: "Unable to get level info id")
+    }
+    
+    let levelInfo = try db.levelInfoDao.getBy(id: levelInfoId)
 //    let db = try SQLiteDatabase(path: path)
 //    try Migrations.migrate(db)
 
