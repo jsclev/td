@@ -1,4 +1,3 @@
 enum DbError: Error {
-    case unableToCreateUuid
-    case serverError(statusCode: Int)
+    case Db(message: String)
 }

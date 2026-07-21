@@ -50,7 +50,7 @@ CREATE TABLE level_info (
     started_at REAL NOT NULL,
     ended_at REAL NOT NULL,
     starting_money INTEGER NOT NULL CHECK (starting_money > 0),
-    num_lives INTEGER NOT NULL CHECK (num_lives > 0)
+    num_starting_lives INTEGER NOT NULL CHECK (num_starting_lives > 0)
 );
 
 -- CREATE TABLE level_paths (

@@ -168,13 +168,12 @@ public enum SeedContent {
 
     /// "Concord Road" — a single winding path in a 1280x640 virtual canvas
     /// (author art at any resolution; these coordinates are the shared space).
-    public static func concordRoad() -> Level {
-        Level(
+    public static func concordRoad() -> LevelInfo {
+        LevelInfo(
             id: UUID(),
             name: "Concord Road",
-            campaignSequenceNum: 1,
             startingMoney: 260,
-            lives: 20,
+            numStartingLives: 20,
             paths: [
                 Path(points: [
                     Point(-40, 300), Point(160, 260), Point(360, 330),

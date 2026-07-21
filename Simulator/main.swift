@@ -42,7 +42,7 @@ func parseOptions() throws -> Options? {
         case "--level":
             guard let v = args.popFirst() else { return nil }
             guard let uuid = UUID(uuidString: v) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             opts.levelID = uuid
@@ -93,22 +93,24 @@ do {
     }
 
     let path = opts.inMemory ? ":memory:" : opts.dbPath
-    let db = try SQLiteDatabase(path: path)
-    try Migrations.migrate(db)
+    let db = Db(dbPath: Db.getAbsolutePathToDb(dbFilename: "redcoat_raid", fullRefresh: false), fullRefresh: false)
+    
+    let levelInfo = try db.levelInfoDao.getBy(name: "Lexington and Concord")
+//    let db = try SQLiteDatabase(path: path)
+//    try Migrations.migrate(db)
 
-    let repo = ContentRepository(db: db)
-    if try SeedContent.seedIfNeeded(into: repo) {
-        print("Seeded content database (\(path)) with Crown Forces roster + demo level.")
-    }
-
-    let catalog = try repo.loadCatalog()
-    let level = try repo.loadLevel(optionalId: opts.levelID)
+//    let repo = ContentRepository(db: db)
+//    if try SeedContent.seedIfNeeded(into: repo) {
+//        print("Seeded content database (\(path)) with Crown Forces roster + demo level.")
+//    }
+//
+//    let catalog = try repo.loadCatalog()
+//    let level = try repo.loadLevel(optionalId: opts.levelID)
 
     print("""
 
     ── revsim ────────────────────────────────────────────
-    level:   \(level.name) [\(level.id)]
-    content: \(catalog.enemyTypes.count) enemy types, \(catalog.towerTypes.count) tower types
+    level:   \(levelInfo.name) [\(levelInfo.id)]
     runs:    \(opts.seeds) seeds starting at \(opts.baseSeed)
     """)
 

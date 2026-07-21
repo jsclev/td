@@ -9,5 +9,5 @@ sqlite3 redcoat_raid.sqlite < populate_baseline_data.sql
 
 # CLI Simulator
 # FIXME Need to figure out where to actually put/bundle the database file for the CLI simulator
-# cp -f redcoat_raid.sqlite ~/Documents/redcoat_raid.sqlite
+cp -f redcoat_raid.sqlite ~/Documents/redcoat_raid.sqlite
 # cp -f redcoat_raid.sqlite ~/Documents/stone-to-space-simulations.sqlite

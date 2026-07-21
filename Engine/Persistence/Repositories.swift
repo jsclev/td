@@ -97,7 +97,7 @@ public final class ContentRepository {
         FROM enemy_types ORDER BY id;
         """) { r in
             guard let id = UUID(uuidString: r.text(0)) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             let traitsJSON = r.text(13)
@@ -164,7 +164,7 @@ public final class ContentRepository {
         var names: [UUID: String] = [:]
         try db.query("SELECT id, name FROM tower_types;") { r in
             guard let id = UUID(uuidString: r.text(0)) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             names[id] = r.text(1)
@@ -177,7 +177,7 @@ public final class ContentRepository {
         FROM tower_levels ORDER BY tower_id, level;
         """) { r in
             guard let towerId = UUID(uuidString: r.text(0)) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             let lvl = TowerLevel(
@@ -205,14 +205,14 @@ public final class ContentRepository {
 
     // MARK: Levels
 
-    public func save(_ level: Level) throws {
+    public func save(_ level: LevelInfo) throws {
         try db.transaction {
             // ON DELETE CASCADE clears children.
             try db.run("DELETE FROM levels WHERE id = ?;", [.text(level.id.uuidString)])
             try db.run(
                 "INSERT INTO levels (id, name, starting_gold, lives) VALUES (?, ?, ?, ?);",
                 [.text(level.id.uuidString), .text(level.name),
-                 .integer(level.startingMoney), .integer(level.lives)]
+                 .integer(level.startingMoney), .integer(level.numStartingLives)]
             )
             for (i, path) in level.paths.enumerated() {
                 try db.run(
@@ -248,7 +248,7 @@ public final class ContentRepository {
         }
     }
 
-    public func loadLevel(optionalId: UUID?) throws -> Level {
+    public func loadLevel(optionalId: UUID?) throws -> LevelInfo {
         guard let id = optionalId else {
             throw RepositoryError.levelNotFound("<unknown>")
         }
@@ -259,7 +259,7 @@ public final class ContentRepository {
             [.text(id.uuidString)]
         ) { r in
             guard let id = UUID(uuidString: r.text(0)) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             header = (id, r.text(0), Int(r.int(1)), Int(r.int(2)))
@@ -299,7 +299,7 @@ public final class ContentRepository {
         ORDER BY wave_index, spawn_index;
         """, [.text(id.uuidString)]) { r in
             guard let enemyTypeId = UUID(uuidString: r.text(1)) else {
-                throw DbError.unableToCreateUuid
+                throw DbError.Db(message: "Unable to create UUID")
             }
             
             spawnsByWave[Int(r.int(0)), default: []].append(SpawnEntry(
@@ -314,12 +314,11 @@ public final class ContentRepository {
             Wave(startTime: start, spawns: spawnsByWave[wi] ?? [])
         }
         
-        return Level(
+        return LevelInfo(
             id: header.id,
             name: header.name,
-            campaignSequenceNum: 1,
             startingMoney: header.gold,
-            lives: header.lives,
+            numStartingLives: header.lives,
             paths: paths,
             towerSlots: towerSlots,
             waves: waves

@@ -19,15 +19,15 @@ import CSQLite
 /// what we want when binding Swift-managed strings and data.
 private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
-public struct SQLiteError: Error, CustomStringConvertible {
-    public let code: Int32
-    public let message: String
-    public let context: String
-
-    public var description: String {
-        "SQLite error \(code) (\(context)): \(message)"
-    }
-}
+//public struct SQLiteError: Error, CustomStringConvertible {
+//    public let code: Int32
+//    public let message: String
+//    public let context: String
+//
+//    public var description: String {
+//        "SQLite error \(code) (\(context)): \(message)"
+//    }
+//}
 
 /// A value crossing into or out of the database.
 public enum SQLiteValue: Sendable {
@@ -79,7 +79,8 @@ public final class SQLiteDatabase {
         guard rc == SQLITE_OK, let opened = h else {
             let msg = h.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
             if let h { sqlite3_close_v2(h) }
-            throw SQLiteError(code: rc, message: msg, context: "open \(path)")
+            throw SQLiteError.OpenDatabase(message: "Unable to open db")
+//            throw SQLiteError(code: rc, message: msg, context: "open \(path)")
         }
         handle = opened
         try tunePragmas()
@@ -105,7 +106,8 @@ public final class SQLiteDatabase {
 
     private func requireHandle() throws -> OpaquePointer {
         guard let handle else {
-            throw SQLiteError(code: SQLITE_MISUSE, message: "database closed", context: "handle")
+            throw SQLiteError.OpenDatabase(message: "database closed")
+//            throw SQLiteError(code: SQLITE_MISUSE, message: "database closed", context: "handle")
         }
         return handle
     }
@@ -113,7 +115,9 @@ public final class SQLiteDatabase {
     private func lastError(_ context: String) -> SQLiteError {
         let msg = handle.map { String(cString: sqlite3_errmsg($0)) } ?? "unknown"
         let code = handle.map { sqlite3_errcode($0) } ?? SQLITE_ERROR
-        return SQLiteError(code: code, message: msg, context: context)
+        
+        return SQLiteError.Bind(message: msg)
+//        return SQLiteError(code: code, message: msg, context: context)
     }
 
     // MARK: - Execution
@@ -127,7 +131,8 @@ public final class SQLiteDatabase {
         if rc != SQLITE_OK {
             let msg = errMsg.map { String(cString: $0) } ?? "unknown"
             sqlite3_free(errMsg)
-            throw SQLiteError(code: rc, message: msg, context: "exec")
+            throw SQLiteError.Prepare(message: msg)
+//            throw SQLiteError(code: rc, message: msg, context: "exec")
         }
     }
 

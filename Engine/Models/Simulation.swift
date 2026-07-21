@@ -2,7 +2,7 @@ import Foundation
 
 public final class Simulation {
     public let catalog: ContentCatalog
-    public let level: Level
+    public let level: LevelInfo
 
     // Mutable run state.
     public private(set) var time: Double = 0
@@ -54,7 +54,7 @@ public final class Simulation {
     // MARK: - Init
 
     public init(
-        level: Level,
+        level: LevelInfo,
         catalog: ContentCatalog,
         policy: any CommanderPolicy,
         seed: UInt64
@@ -63,7 +63,7 @@ public final class Simulation {
         self.catalog = catalog
         self.policy = policy
         self.gold = level.startingMoney
-        self.lives = level.lives
+        self.lives = level.numStartingLives
         self.towers = Array(repeating: nil, count: level.towerSlots.count)
         self.fatesByType = Array(
             repeating: [0, 0, 0, 0],
