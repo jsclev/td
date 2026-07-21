@@ -317,6 +317,8 @@ public final class ContentRepository {
         return LevelInfo(
             id: header.id,
             name: header.name,
+            startedAt: Date.now,
+            endedAt: Date.now,
             startingMoney: header.gold,
             numStartingLives: header.lives,
             paths: paths,

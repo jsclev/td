@@ -172,6 +172,8 @@ public enum SeedContent {
         LevelInfo(
             id: UUID(),
             name: "Concord Road",
+            startedAt: Date.now,
+            endedAt: Date.now,
             startingMoney: 260,
             numStartingLives: 20,
             paths: [

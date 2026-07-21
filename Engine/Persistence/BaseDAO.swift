@@ -93,7 +93,7 @@ public class BaseDAO {
         
         throw DbError.Db(message: "Unable to get date from column index \(colIndex)")
     }
-    
+
     func getString(stmt: OpaquePointer?, colIndex: Int) throws -> String? {
         let colDataType = sqlite3_column_type(stmt, Int32(colIndex))
         

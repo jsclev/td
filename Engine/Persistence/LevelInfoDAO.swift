@@ -59,6 +59,8 @@ public class LevelInfoDAO: BaseDAO {
             SELECT
                 l.id,
                 l.level_name,
+                strftime('%Y-%m-%dT%H:%M:%SZ', l.started_at) AS started_at,
+                strftime('%Y-%m-%dT%H:%M:%SZ', l.ended_at) AS ended_at,
                 l.starting_money,
                 l.num_starting_lives
             FROM
@@ -76,14 +78,18 @@ public class LevelInfoDAO: BaseDAO {
             let levelInfoId = try getUUID(stmt: stmt, colIndex: 0, msg: "level info id")
 
             if let name = try getString(stmt: stmt, colIndex: 1) {
-                let startingMoney = getInt(stmt: stmt, colIndex: 2)
-                let numStartingLives = getInt(stmt: stmt, colIndex: 3)
-                
+                let startedAt = try getDate(stmt: stmt, colIndex: 2)
+                let endedAt = try getDate(stmt: stmt, colIndex: 3)
+                let startingMoney = getInt(stmt: stmt, colIndex: 4)
+                let numStartingLives = getInt(stmt: stmt, colIndex: 5)
+
                 sqlite3_finalize(stmt)
                 stmt = nil
-                
+
                 return LevelInfo(id: levelInfoId,
                                  name: name,
+                                 startedAt: startedAt,
+                                 endedAt: endedAt,
                                  startingMoney: startingMoney,
                                  numStartingLives: numStartingLives,
                                  paths: [],
