@@ -82,55 +82,55 @@ do {
     }
     
     let levelInfo = try db.levelInfoDao.getBy(id: levelInfoId)
-//    let db = try SQLiteDatabase(path: path)
-//    try Migrations.migrate(db)
 
-//    let repo = ContentRepository(db: db)
-//    if try SeedContent.seedIfNeeded(into: repo) {
-//        print("Seeded content database (\(path)) with Crown Forces roster + demo level.")
-//    }
-//
-//    let catalog = try repo.loadCatalog()
-//    let level = try repo.loadLevel(optionalId: opts.levelID)
+    // The tower_type / enemy_type tables exist but are not yet populated with
+    // level/cost/range data, so the content catalog is assembled here for now.
+    // Replace with a TowerTypeDAO once those tables carry the stat columns.
+    let minutemanPost = TowerType(
+        id: UUID(),
+        name: "Minuteman Post",
+        levels: [
+            TowerLevel(cost: 70, range: 140, fireInterval: 0.9, shotMin: 4, shotMax: 7),
+            TowerLevel(cost: 90, range: 150, fireInterval: 0.85, shotMin: 7, shotMax: 11),
+        ]
+    )
+    let catalog = ContentCatalog(enemyTypes: [], towerTypes: [minutemanPost])
+
+    // Build the simulation for the loaded level. No waves or paths are in the
+    // database yet, so the spawn schedule is empty and the run sits at the start
+    // of wave 1 (wave index 0). We deliberately do not step() the simulation:
+    // with an empty schedule the very first tick would satisfy the victory
+    // condition. Waves become runnable once paths and wave data are seeded.
+    let sim = try Simulation(
+        level: levelInfo,
+        catalog: catalog,
+        policy: IdleCommander(),
+        seed: opts.baseSeed
+    )
+
+    // Create a tower and assign it to the first slot.
+    guard !levelInfo.towerSlots.isEmpty else {
+        throw DbError.Db(message: "Level '\(levelInfo.name)' has no tower slots to place a tower in.")
+    }
+    let goldBefore = sim.gold
+    let buildResult = sim.build(slot: 0, towerID: minutemanPost.id)
+    guard buildResult == .ok else {
+        throw DbError.Db(message: "Failed to place \(minutemanPost.name) in slot 0: \(buildResult)")
+    }
+
+    let occupiedSlots = sim.towers.filter { $0 != nil }.count
 
     print("""
 
     ── revsim ────────────────────────────────────────────
-    level:   \(levelInfo.name) [\(levelInfo.id)]
-    runs:    \(opts.seeds) seeds starting at \(opts.baseSeed)
+    level:        \(levelInfo.name) [\(levelInfo.id)]
+    tower slots:  \(levelInfo.towerSlots.count)
+    tower built:  \(minutemanPost.name) → slot 0 (\(occupiedSlots)/\(levelInfo.towerSlots.count) occupied)
+    gold:         \(goldBefore) → \(sim.gold)  (lives: \(sim.lives))
+    initialized:  wave 1  (waves loaded: \(levelInfo.waves.count), paths loaded: \(levelInfo.paths.count))
+    ──────────────────────────────────────────────────────
+
     """)
-
-//    let started = Date()
-//    let report = try Batch.run(
-//        level: level,
-//        catalog: catalog,
-//        baseSeed: opts.baseSeed,
-//        count: opts.seeds,
-//        makePolicy: { _ in demoBuildOrder() }
-//    )
-//    let elapsed = Date().timeIntervalSince(started)
-//
-//    let pct = { (v: Double) in String(format: "%.1f%%", v * 100) }
-//    print("""
-//    outcome: \(report.victories) victories / \(report.defeats) defeats / \(report.timeouts) timeouts  (win rate \(pct(report.winRate)))
-//    lives remaining  p5: \(String(format: "%.0f", report.livesPercentile(5)))   p50: \(String(format: "%.0f", report.livesPercentile(50)))   p95: \(String(format: "%.0f", report.livesPercentile(95)))
-//    fates:   killed \(report.totalKilled) · routed \(report.totalRouted) · captured \(report.totalCaptured) · leaked \(report.totalLeaked)
-//    rout share of removals: \(pct(report.routShare))
-//    """)
-
-//    print("wave pressure (mean max progress toward exit):")
-//    for (i, v) in report.meanWaveMaxProgress.enumerated() {
-//        let filled = max(0, min(30, Int((v * 30).rounded())))
-//        let bar = String(repeating: "█", count: filled)
-//            + String(repeating: "·", count: 30 - filled)
-//        let prefix = String(format: "  wave %2d  ", i + 1)
-//        let suffix = String(format: " %5.1f%%", v * 100)
-//        print(prefix + bar + suffix)
-//    }
-
-//    let rate = elapsed > 0 ? Double(opts.seeds) / elapsed : 0
-//    print(String(format: "\n%d sims in %.2fs (%.1f sims/sec)", opts.seeds, elapsed, rate))
-    print("──────────────────────────────────────────────────────\n")
 } catch {
     FileHandle.standardError.write(Data("revsim error: \(error)\n".utf8))
     exit(1)
