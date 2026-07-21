@@ -8,28 +8,9 @@ public class Db {
     let dbExtension = "sqlite"
     private var conn: OpaquePointer?
     public let fullRefresh: Bool
+    
+    public let campaignDao: CampaignDAO
     public let levelInfoDao: LevelInfoDAO
-//    public let cityDao: CityDAO
-//    public let cityNameDao: CityNameDAO
-//    public let civilizationDao: CivilizationDAO
-//    public let commandDao: CommandDAO
-//    public let createCityCommandDao: CreateCityCommandDAO
-//    public let cityProductionDao: CityProductionDAO
-//    public let languageDao: LanguageDAO
-//    public let gameDao: GameDAO
-//    public let mapDao: MapDAO
-//    public let moveUnitCommandDao: MoveUnitCommandDAO
-//    public let playerEndTurnDao: PlayerEndTurnDAO
-//    public let playerDao: PlayerDAO
-//    public let startResearchingTechDao: StartResearchingTechDAO
-//    public let skinDao: SkinDAO
-//    public let spawnUnitDao: SpawnUnitDAO
-//    public let unitTypeDao: UnitTypeDAO
-//    public let techDAO: TechDAO
-//    public let terrainDao: TerrainDAO
-//    public let themeDao: ThemeDAO
-//    public let turnDao: TurnDAO
-//    public let unitDao: UnitDAO
     
     public static func getAbsolutePathToDb(dbFilename: String, fullRefresh: Bool) -> String {
         let logger = LogUtility.getLogger(LogCategory.Db, Db.self)
@@ -126,28 +107,8 @@ public class Db {
         
         self.fullRefresh = fullRefresh
         
+        campaignDao = CampaignDAO(conn: conn)
         levelInfoDao = LevelInfoDAO(conn: conn)
-//        unitTypeDao = UnitTypeDAO(conn: conn)
-//        cityNameDao = CityNameDAO(conn: conn)
-//        cityDao = CityDAO(conn: conn)
-//        civilizationDao = CivilizationDAO(conn: conn, cityNameDao: cityNameDao)
-//        unitDao = UnitDAO(conn: conn)
-//        commandDao = CommandDAO(conn: conn, cityDao: cityDao, unitDao: unitDao, unitTypeDao: unitTypeDao)
-//        createCityCommandDao = CreateCityCommandDAO(conn: conn, commandDao: commandDao, cityDao: cityDao)
-//        playerEndTurnDao = PlayerEndTurnDAO(conn: conn, commandDao: commandDao)
-//        languageDao = LanguageDAO(conn: conn)
-//        gameDao = GameDAO(conn: conn)
-//        mapDao = MapDAO(conn: conn)
-//        cityProductionDao = CityProductionDAO(conn: conn, commandDao: commandDao, unitTypeDao: unitTypeDao)
-//        moveUnitCommandDao = MoveUnitCommandDAO(conn: conn, commandDao: commandDao)
-//        startResearchingTechDao = StartResearchingTechDAO(conn: conn, commandDao: commandDao)
-//        playerDao = PlayerDAO(conn: conn, mapDao: mapDao, unitDao: unitDao, cityNameDao: cityNameDao)
-//        skinDao = SkinDAO(conn: conn)
-//        spawnUnitDao = SpawnUnitDAO(conn: conn, commandDao: commandDao, unitDao: unitDao)
-//        techDAO = TechDAO(conn: conn)
-//        terrainDao = TerrainDAO(conn: conn)
-//        themeDao = ThemeDAO(conn: conn)
-//        turnDao = TurnDAO(conn: conn)
     }
     
 //    public func getGame(gameId: UUID, themeId: UUID) throws -> Game {

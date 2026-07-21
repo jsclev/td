@@ -172,6 +172,7 @@ public enum SeedContent {
         LevelInfo(
             id: UUID(),
             name: "Concord Road",
+            campaign: Campaign(id: UUID(), name: "campaign"),
             startedAt: Date.now,
             endedAt: Date.now,
             startingMoney: 260,

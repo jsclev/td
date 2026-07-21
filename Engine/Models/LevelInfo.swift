@@ -3,6 +3,7 @@ import Foundation
 public struct LevelInfo: Codable, Sendable, Identifiable, Equatable {
     public let id: UUID
     public let name: String
+    public let campaign: Campaign
     public let startingMoney: Int
     public var numStartingLives: Int
     public let startedAt: Date
@@ -13,6 +14,7 @@ public struct LevelInfo: Codable, Sendable, Identifiable, Equatable {
 
     public init(id: UUID,
                 name: String,
+                campaign: Campaign,
                 startedAt: Date,
                 endedAt: Date,
                 startingMoney: Int,
@@ -22,6 +24,7 @@ public struct LevelInfo: Codable, Sendable, Identifiable, Equatable {
                 waves: [Wave]) {
         self.id = id
         self.name = name
+        self.campaign = campaign
         self.startedAt = startedAt
         self.endedAt = endedAt
         self.startingMoney = startingMoney

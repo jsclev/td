@@ -317,6 +317,7 @@ public final class ContentRepository {
         return LevelInfo(
             id: header.id,
             name: header.name,
+            campaign: Campaign(id: UUID(), name: "campaign"),
             startedAt: Date.now,
             endedAt: Date.now,
             startingMoney: header.gold,
