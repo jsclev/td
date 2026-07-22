@@ -94,7 +94,8 @@ do {
             TowerLevel(cost: 90, range: 150, fireInterval: 0.85, shotMin: 7, shotMax: 11),
         ]
     )
-    let catalog = ContentCatalog(enemyTypes: [], towerTypes: [minutemanPost])
+    let enemyTypes = try db.enemyTypeDao.getAll()
+    let catalog = ContentCatalog(enemyTypes: enemyTypes, towerTypes: [minutemanPost])
 
     // Build the simulation for the loaded level. No waves or paths are in the
     // database yet, so the spawn schedule is empty and the run sits at the start
@@ -124,6 +125,7 @@ do {
 
     ── revsim ────────────────────────────────────────────
     level:        \(levelInfo.name) [\(levelInfo.id)]
+    enemies:      \(enemyTypes.count) types loaded from roster
     tower slots:  \(levelInfo.towerSlots.count)
     tower built:  \(minutemanPost.name) → slot 0 (\(occupiedSlots)/\(levelInfo.towerSlots.count) occupied)
     gold:         \(goldBefore) → \(sim.gold)  (lives: \(sim.lives))
