@@ -12,6 +12,7 @@ public class Db {
     public let campaignDao: CampaignDAO
     public let levelInfoDao: LevelInfoDAO
     public let towerSlotDao: TowerSlotDAO
+    public let pathDao: PathDAO
     public let enemyTypeDao: EnemyTypeDAO
     
     public static func getAbsolutePathToDb(dbFilename: String, fullRefresh: Bool) -> String {
@@ -111,7 +112,8 @@ public class Db {
         
         campaignDao = CampaignDAO(conn: conn)
         towerSlotDao = TowerSlotDAO(conn: conn)
-        levelInfoDao = LevelInfoDAO(conn: conn, towerSlotDao: towerSlotDao)
+        pathDao = PathDAO(conn: conn)
+        levelInfoDao = LevelInfoDAO(conn: conn, towerSlotDao: towerSlotDao, pathDao: pathDao)
         enemyTypeDao = EnemyTypeDAO(conn: conn)
     }
     

@@ -133,6 +133,56 @@ do {
     ──────────────────────────────────────────────────────
 
     """)
+
+    // Walk one enemy along the level's path, driven by the game clock. Movement
+    // is the engine's own model — distance += speed * dt each tick — with the
+    // clock supplying the fixed dt independent of wall-clock time, so this is
+    // deterministic and runs as fast as the CPU allows. This mirrors what
+    // Simulation.step() does per enemy; here it is isolated to demonstrate the
+    // timer moving a unit along the real path at its type's speed.
+    guard let path = levelInfo.paths.first else {
+        throw DbError.Db(message: "Level '\(levelInfo.name)' has no path to walk. Seed level_path_point first.")
+    }
+    let walker = enemyTypes.first(where: { $0.name == "Redcoat Regular" }) ?? enemyTypes[0]
+    let speed = walker.stats.speed
+    let clock = GameClock()
+
+    func fmt(_ v: Double, _ d: Int = 1) -> String { String(format: "%.\(d)f", v) }
+    func sample(distance: Double) {
+        let p = path.point(atDistance: distance)
+        let pct = path.totalLength > 0 ? distance / path.totalLength * 100 : 0
+        print("  t=\(fmt(clock.time))s  tick \(String(format: "%4d", clock.tick))  "
+            + "dist \(String(format: "%7.1f", distance)) (\(String(format: "%3.0f", pct))%)  "
+            + "pos (\(fmt(p.x)), \(fmt(p.y)))")
+    }
+
+    print("""
+    ── enemy walk (GameClock) ────────────────────────────
+    enemy:   \(walker.name)  (speed \(fmt(speed, 0)) units/s)
+    path:    \(path.points.count) points, length \(fmt(path.totalLength)) units
+    clock:   \(clock.ticksPerSecond) ticks/s  (dt \(fmt(clock.dt, 4))s)
+
+    """)
+
+    var distance = 0.0
+    sample(distance: distance)                      // t = 0, at the spawn
+    var nextSampleTick = clock.ticksPerSecond       // then once per game-second
+    while distance < path.totalLength {
+        clock.advance()
+        distance = min(path.totalLength, distance + speed * clock.dt)
+        if clock.tick >= nextSampleTick {
+            sample(distance: distance)
+            nextSampleTick += clock.ticksPerSecond
+        }
+    }
+    if clock.tick % clock.ticksPerSecond != 0 { sample(distance: distance) }  // final position
+
+    print("""
+
+    arrived at exit in \(fmt(clock.time))s (\(clock.tick) ticks)
+    ──────────────────────────────────────────────────────
+
+    """)
 } catch {
     FileHandle.standardError.write(Data("revsim error: \(error)\n".utf8))
     exit(1)

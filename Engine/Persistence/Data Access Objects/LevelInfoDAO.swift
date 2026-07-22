@@ -3,10 +3,12 @@ import SQLite3
 
 public class LevelInfoDAO: BaseDAO {
     private let towerSlotDao: TowerSlotDAO
+    private let pathDao: PathDAO
 
-    init(conn: OpaquePointer?, towerSlotDao: TowerSlotDAO) {
+    init(conn: OpaquePointer?, towerSlotDao: TowerSlotDAO, pathDao: PathDAO) {
         self.towerSlotDao = towerSlotDao
-        
+        self.pathDao = pathDao
+
         super.init(conn: conn, table: "level_info", loggerName: LevelInfoDAO.self)
     }
     
@@ -99,6 +101,7 @@ public class LevelInfoDAO: BaseDAO {
                 stmt = nil
                 
                 let towerSlots = try towerSlotDao.getTowerSlotsFor(levelInfoId: id)
+                let paths = try pathDao.getPathsFor(levelInfoId: id)
 
                 return LevelInfo(id: levelInfoId,
                                  name: levelName,
@@ -107,7 +110,7 @@ public class LevelInfoDAO: BaseDAO {
                                  endedAt: endedAt,
                                  startingMoney: startingMoney,
                                  numStartingLives: numStartingLives,
-                                 paths: [],
+                                 paths: paths,
                                  towerSlots: towerSlots,
                                  waves: [])
             }
