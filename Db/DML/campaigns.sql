@@ -55,13 +55,13 @@ INSERT INTO level_info (
     '9d692af7-345d-419a-bc04-16112c3f0b74',
     'f589a28f-54d8-4791-851c-a307f252151a',
     'Bunker Hill',
-    0.0,
-    0.0,
-    julianday('1775-06-17T10:00:00-05:00'),
-    julianday('1775-06-17T12:00:00-05:00'),
+    1927.0,
+    443.0,
+    julianday('1775-06-17T15:00:00-05:00'),
+    julianday('1775-06-17T17:00:00-05:00'),
     100,
     20,
-    190.0, 226.125, 1164.0, 654.75
+    209.0, 117.8125, 1254.0, 705.375
 );
 INSERT INTO level_info (
     id, campaign_id, level_name, world_map_x, world_map_y,

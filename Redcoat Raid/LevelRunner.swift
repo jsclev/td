@@ -92,14 +92,15 @@ final class LevelRunner: NSObject, ObservableObject {
     let availableTowerKinds: Set<TowerKind> = [.ranged, .melee]
 
     /// The level map artwork's pixel size — the coordinate space path points
-    /// (and tower slots) are authored in. Keep in sync if the art is replaced.
-    let mapImageSize = CGSize(width: 1447, height: 1087)
+    /// (and tower slots) are authored in. Supplied per level by the campaign
+    /// node that opened this runner.
+    let mapImageSize: CGSize
 
     /// The level's playable rect from the database: the exactly-16:9 region of
     /// the art that must always be fully on screen (no map panning, ever). The
     /// view scales and centres the map so this rect fits the screen exactly.
     /// Falls back to the full art bounds until the level loads.
-    private(set) var playableRect = CGRect(x: 0, y: 0, width: 1447, height: 1087)
+    private(set) var playableRect: CGRect
 
     /// Rendered height of the enemy sprite, in map-image pixels (scaled to the
     /// view alongside the map). This is the single knob for sprite size on the
@@ -149,7 +150,9 @@ final class LevelRunner: NSObject, ObservableObject {
     private var waveStartTick: Int64 = 0
     private var displayLink: CADisplayLink?
 
-    init(levelInfoID: UUID?) {
+    init(levelInfoID: UUID?, mapImageSize: CGSize) {
+        self.mapImageSize = mapImageSize
+        self.playableRect = CGRect(origin: .zero, size: mapImageSize)
         super.init()
         load(levelInfoID: levelInfoID)
     }

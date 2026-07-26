@@ -58,7 +58,10 @@ struct LevelMapView: View {
     init(node: CampaignNode, onExit: @escaping () -> Void) {
         self.node = node
         self.onExit = onExit
-        _runner = StateObject(wrappedValue: LevelRunner(levelInfoID: node.levelInfoID))
+        _runner = StateObject(wrappedValue: LevelRunner(
+            levelInfoID: node.levelInfoID,
+            mapImageSize: node.mapImageSize
+        ))
     }
 
     var body: some View {
@@ -84,7 +87,7 @@ struct LevelMapView: View {
             // The map, scaled so the playable rect exactly fits the screen and
             // centred on it. The art's bleed beyond the playable rect covers
             // whatever the device's aspect ratio reveals.
-            Image("lexington_and_concord")
+            Image(node.mapImageName)
                 .resizable()
                 .frame(width: projection.imageFrameSize.width,
                        height: projection.imageFrameSize.height)
