@@ -125,6 +125,7 @@ do {
 
     ── revsim ────────────────────────────────────────────
     level:        \(levelInfo.name) [\(levelInfo.id)]
+    playable:     \(levelInfo.playableRect)
     enemies:      \(enemyTypes.count) types loaded from roster
     tower slots:  \(levelInfo.towerSlots.count)
     tower built:  \(minutemanPost.name) → slot 0 (\(occupiedSlots)/\(levelInfo.towerSlots.count) occupied)
@@ -145,41 +146,46 @@ do {
     }
     let walker = enemyTypes.first(where: { $0.name == "Redcoat Regular" }) ?? enemyTypes[0]
     let speed = walker.stats.speed
-    let clock = GameClock()
+    // The engine Timer in unbounded mode (tickDuration .zero): no pacing, ticks
+    // run as fast as the CPU allows — batch simulation. Game time is
+    // tick * SimClock.dt; on-screen play paces the very same ticks in real time.
+    let timer = Timer(tickDuration: .zero)
+    let ticksPerSecond = Int64(SimClock.ticksPerSecond)
 
     func fmt(_ v: Double, _ d: Int = 1) -> String { String(format: "%.\(d)f", v) }
     func sample(distance: Double) {
         let p = path.point(atDistance: distance)
         let pct = path.totalLength > 0 ? distance / path.totalLength * 100 : 0
-        print("  t=\(fmt(clock.time))s  tick \(String(format: "%4d", clock.tick))  "
+        let t = Double(timer.tick) * SimClock.dt
+        print("  t=\(fmt(t))s  tick \(String(format: "%4d", timer.tick))  "
             + "dist \(String(format: "%7.1f", distance)) (\(String(format: "%3.0f", pct))%)  "
             + "pos (\(fmt(p.x)), \(fmt(p.y)))")
     }
 
     print("""
-    ── enemy walk (GameClock) ────────────────────────────
+    ── enemy walk (engine Timer, unbounded) ──────────────
     enemy:   \(walker.name)  (speed \(fmt(speed, 0)) units/s)
     path:    \(path.points.count) points, length \(fmt(path.totalLength)) units
-    clock:   \(clock.ticksPerSecond) ticks/s  (dt \(fmt(clock.dt, 4))s)
+    clock:   \(SimClock.ticksPerSecond) ticks/s of game time (dt \(fmt(SimClock.dt, 4))s), pacing unbounded
 
     """)
 
     var distance = 0.0
     sample(distance: distance)                      // t = 0, at the spawn
-    var nextSampleTick = clock.ticksPerSecond       // then once per game-second
+    var nextSampleTick = ticksPerSecond             // then once per game-second
     while distance < path.totalLength {
-        clock.advance()
-        distance = min(path.totalLength, distance + speed * clock.dt)
-        if clock.tick >= nextSampleTick {
+        let tick = timer.waitForNextTick()          // returns immediately when unbounded
+        distance = min(path.totalLength, Double(tick) * SimClock.dt * speed)
+        if tick >= nextSampleTick {
             sample(distance: distance)
-            nextSampleTick += clock.ticksPerSecond
+            nextSampleTick += ticksPerSecond
         }
     }
-    if clock.tick % clock.ticksPerSecond != 0 { sample(distance: distance) }  // final position
+    if timer.tick % ticksPerSecond != 0 { sample(distance: distance) }  // final position
 
     print("""
 
-    arrived at exit in \(fmt(clock.time))s (\(clock.tick) ticks)
+    arrived at exit in \(fmt(Double(timer.tick) * SimClock.dt))s (\(timer.tick) ticks)
     ──────────────────────────────────────────────────────
 
     """)

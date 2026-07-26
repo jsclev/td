@@ -50,7 +50,11 @@ CREATE TABLE level_info (
     started_at REAL NOT NULL,
     ended_at REAL NOT NULL,
     starting_money INTEGER NOT NULL CHECK (starting_money > 0),
-    num_starting_lives INTEGER NOT NULL CHECK (num_starting_lives > 0)
+    num_starting_lives INTEGER NOT NULL CHECK (num_starting_lives > 0),
+    playable_rect_x REAL NOT NULL CHECK (playable_rect_x >= 0.0),
+    playable_rect_y REAL NOT NULL CHECK (playable_rect_y >= 0.0),
+    playable_rect_width REAL NOT NULL CHECK (playable_rect_width >= 0.0),
+    playable_rect_height REAL NOT NULL CHECK (playable_rect_height >= 0.0)
 );
 
 -- A level's enemy path(s) as ordered polyline points in map (image-pixel) space,

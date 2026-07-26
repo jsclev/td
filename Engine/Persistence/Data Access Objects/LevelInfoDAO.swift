@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 import SQLite3
 
 public class LevelInfoDAO: BaseDAO {
@@ -70,7 +71,11 @@ public class LevelInfoDAO: BaseDAO {
                 l.starting_money,
                 l.num_starting_lives,
                 c.id AS campaign_id,
-                c.campaign_name
+                c.campaign_name,
+                l.playable_rect_x,
+                l.playable_rect_y,
+                l.playable_rect_width,
+                l.playable_rect_height
             FROM
                 level_info l
             INNER JOIN
@@ -96,10 +101,16 @@ public class LevelInfoDAO: BaseDAO {
                 let endedAt = try getDate(stmt: stmt, colIndex: 3)
                 let startingMoney = getInt(stmt: stmt, colIndex: 4)
                 let numStartingLives = getInt(stmt: stmt, colIndex: 5)
+                let playableRect = CGRect(
+                    x: getDouble(stmt: stmt, colIndex: 8),
+                    y: getDouble(stmt: stmt, colIndex: 9),
+                    width: getDouble(stmt: stmt, colIndex: 10),
+                    height: getDouble(stmt: stmt, colIndex: 11)
+                )
 
                 sqlite3_finalize(stmt)
                 stmt = nil
-                
+
                 let towerSlots = try towerSlotDao.getTowerSlotsFor(levelInfoId: id)
                 let paths = try pathDao.getPathsFor(levelInfoId: id)
 
@@ -110,6 +121,7 @@ public class LevelInfoDAO: BaseDAO {
                                  endedAt: endedAt,
                                  startingMoney: startingMoney,
                                  numStartingLives: numStartingLives,
+                                 playableRect: playableRect,
                                  paths: paths,
                                  towerSlots: towerSlots,
                                  waves: [])
