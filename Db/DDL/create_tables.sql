@@ -57,6 +57,19 @@ CREATE TABLE level_info (
     playable_rect_height REAL NOT NULL CHECK (playable_rect_height >= 0.0)
 );
 
+-- Per-level tower unlock progression: which tower kinds may be built on a
+-- level and how far each may be upgraded there. tower_kind matches the app's
+-- TowerKind raw values ('ranged', 'melee', 'artillery', 'magic'). A kind with
+-- no row for a level is locked there (padlock in the build menu).
+-- max_tower_level 1 = buildable only; 2 = one upgrade; 3 = two upgrades.
+CREATE TABLE level_tower_unlock (
+    id TEXT PRIMARY KEY NOT NULL CHECK (LENGTH(id) = 36),
+    level_info_id TEXT NOT NULL REFERENCES level_info (id),
+    tower_kind TEXT NOT NULL,
+    max_tower_level INTEGER NOT NULL CHECK (max_tower_level >= 1),
+    UNIQUE (level_info_id, tower_kind)
+);
+
 -- A level's enemy path(s) as ordered polyline points in map (image-pixel) space,
 -- one row per point. path_index groups points into a path (a level may have more
 -- than one); point_index is the travel order, point 0 is the spawn, the last

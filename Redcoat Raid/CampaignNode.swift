@@ -19,6 +19,11 @@ struct CampaignNode: Identifiable {
     /// are authored in. Keep the size in sync if the art is replaced.
     var mapImageName: String
     var mapImageSize: CGSize
+
+    /// Whether the campaign artwork has a painted badge at `imagePosition`.
+    /// Nodes without one render a placeholder badge so they're discoverable
+    /// until the art gains a painted badge.
+    var hasPaintedBadge: Bool = true
 }
 
 extension CampaignNode {
@@ -40,6 +45,17 @@ extension CampaignNode {
             levelInfoID: UUID(uuidString: "9d692af7-345d-419a-bc04-16112c3f0b74"),
             mapImageName: "level_002_bunker_hill",
             mapImageSize: CGSize(width: 1672, height: 941)
+        ),
+        CampaignNode(
+            id: 3,
+            title: "Great Bridge",
+            // No painted badge on the campaign art yet — placed at the battle's
+            // geography (Norfolk, Virginia coast, south of the Yorktown badge).
+            imagePosition: CGPoint(x: 1685, y: 1125),
+            levelInfoID: UUID(uuidString: "55a5d12d-3cea-475f-aa8d-125271a8a0c2"),
+            mapImageName: "level_003_great_bridge",
+            mapImageSize: CGSize(width: 1672, height: 941),
+            hasPaintedBadge: false
         ),
     ]
 }

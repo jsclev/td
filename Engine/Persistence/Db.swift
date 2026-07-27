@@ -14,6 +14,7 @@ public class Db {
     public let towerSlotDao: TowerSlotDAO
     public let pathDao: PathDAO
     public let enemyTypeDao: EnemyTypeDAO
+    public let towerUnlockDao: TowerUnlockDAO
     
     public static func getAbsolutePathToDb(dbFilename: String, fullRefresh: Bool) -> String {
         let logger = LogUtility.getLogger(LogCategory.Db, Db.self)
@@ -115,6 +116,7 @@ public class Db {
         pathDao = PathDAO(conn: conn)
         levelInfoDao = LevelInfoDAO(conn: conn, towerSlotDao: towerSlotDao, pathDao: pathDao)
         enemyTypeDao = EnemyTypeDAO(conn: conn)
+        towerUnlockDao = TowerUnlockDAO(conn: conn)
     }
     
 //    public func getGame(gameId: UUID, themeId: UUID) throws -> Game {

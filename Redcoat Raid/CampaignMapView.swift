@@ -47,9 +47,22 @@ private struct CampaignNodeButton: View {
 
     var body: some View {
         Button(action: action) {
-            Circle()
-                .fill(Color.white.opacity(0.001))
-                .frame(width: 64, height: 64)
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.001))
+                    .frame(width: 64, height: 64)
+
+                // Placeholder badge for nodes the artwork hasn't painted yet.
+                if !node.hasPaintedBadge {
+                    Circle()
+                        .fill(Color(red: 0.62, green: 0.12, blue: 0.12))
+                        .frame(width: 34, height: 34)
+                        .overlay(Circle().strokeBorder(Color(red: 0.85, green: 0.7, blue: 0.3), lineWidth: 3))
+                    Text("\(node.id)")
+                        .font(.system(size: 17, weight: .bold, design: .serif))
+                        .foregroundStyle(.white)
+                }
+            }
         }
         .buttonStyle(CampaignNodeButtonStyle())
         .accessibilityLabel(node.title)
