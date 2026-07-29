@@ -17,17 +17,16 @@ struct CampaignMapView: View {
                 CampaignMapMetalView()
 
                 ForEach(CampaignNode.all) { node in
-                    CampaignNodeButton(node: node) {
+                    let projected = CampaignMapLayout.viewRect(
+                        forImageRect: node.tapRect,
+                        imageSize: CampaignMapAsset.imageSize,
+                        safeRect: CampaignMapAsset.safeRect,
+                        viewSize: geometry.size
+                    )
+                    CampaignNodeButton(node: node, size: projected.size) {
                         onSelectNode(node)
                     }
-                    .position(
-                        CampaignMapLayout.viewPoint(
-                            forImagePoint: node.imagePosition,
-                            imageSize: CampaignMapAsset.imageSize,
-                            safeRect: CampaignMapAsset.safeRect,
-                            viewSize: geometry.size
-                        )
-                    )
+                    .position(projected.center)
                 }
             }
         }
@@ -43,14 +42,17 @@ struct CampaignMapView: View {
 /// feedback — restyle freely once the interaction design firms up.
 private struct CampaignNodeButton: View {
     var node: CampaignNode
+    /// Projected on-screen size of the badge+label tap region. Clamped to the
+    /// platform minimum tap target so small projections stay tappable.
+    var size: CGSize
     var action: () -> Void
 
     var body: some View {
         Button(action: action) {
             ZStack {
-                Circle()
+                Rectangle()
                     .fill(Color.white.opacity(0.001))
-                    .frame(width: 64, height: 64)
+                    .frame(width: max(size.width, 44), height: max(size.height, 44))
 
                 // Placeholder badge for nodes the artwork hasn't painted yet.
                 if !node.hasPaintedBadge {
@@ -73,11 +75,11 @@ private struct CampaignNodeButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .overlay(
-                Circle()
+                RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.white, lineWidth: 3)
                     .opacity(configuration.isPressed ? 0.9 : 0)
             )
-            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }

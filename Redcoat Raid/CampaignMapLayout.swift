@@ -93,6 +93,41 @@ enum CampaignMapLayout {
         )
     }
 
+    /// Converts a rect in the source image's pixel space (e.g. a campaign
+    /// node's badge+label tap region) into its on-screen centre and size,
+    /// using the same crop and rotation as `viewPoint`. In the rotated case
+    /// the rect's width and height swap, matching the 90° content rotation.
+    static func viewRect(
+        forImageRect imageRect: CGRect,
+        imageSize: CGSize,
+        safeRect: CGRect,
+        viewSize: CGSize
+    ) -> (center: CGPoint, size: CGSize) {
+        let crop = makeCrop(
+            imageSize: imageSize,
+            safeRect: safeRect,
+            viewSize: viewSize
+        )
+        let center = viewPoint(
+            forImagePoint: CGPoint(x: imageRect.midX, y: imageRect.midY),
+            imageSize: imageSize,
+            safeRect: safeRect,
+            viewSize: viewSize
+        )
+        if crop.rotated {
+            // Image x spans map to screen y and vice versa.
+            let scaleX = viewSize.width / crop.rect.height
+            let scaleY = viewSize.height / crop.rect.width
+            return (center, CGSize(width: imageRect.height * scaleX,
+                                   height: imageRect.width * scaleY))
+        } else {
+            let scaleX = viewSize.width / crop.rect.width
+            let scaleY = viewSize.height / crop.rect.height
+            return (center, CGSize(width: imageRect.width * scaleX,
+                                   height: imageRect.height * scaleY))
+        }
+    }
+
     /// Converts a point in the source image's pixel space (e.g. a
     /// campaign node's marker position) into a point within a view of
     /// `viewSize`, using the same crop and rotation the Metal renderer
