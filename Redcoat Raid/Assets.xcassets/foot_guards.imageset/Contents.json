@@ -1,0 +1,8 @@
+{
+  "images" : [
+    { "filename" : "foot_guards.png", "idiom" : "universal", "scale" : "1x" },
+    { "filename" : "foot_guards@2x.png", "idiom" : "universal", "scale" : "2x" },
+    { "filename" : "foot_guards@3x.png", "idiom" : "universal", "scale" : "3x" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}

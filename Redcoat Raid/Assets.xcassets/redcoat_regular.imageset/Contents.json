@@ -1,0 +1,8 @@
+{
+  "images" : [
+    { "filename" : "redcoat_regular.png", "idiom" : "universal", "scale" : "1x" },
+    { "filename" : "redcoat_regular@2x.png", "idiom" : "universal", "scale" : "2x" },
+    { "filename" : "redcoat_regular@3x.png", "idiom" : "universal", "scale" : "3x" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
