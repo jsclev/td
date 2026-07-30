@@ -1113,7 +1113,6 @@ INSERT INTO level_tower_unlock (
     id, level_info_id, tower_kind, max_tower_level
 ) VALUES
 ('d37e1e56-81ca-5ad9-836d-5694d9e79331', (SELECT id FROM level_info WHERE level_name = 'Dorchester Heights'), 'ranged', 3),
-('93568ef6-d56a-5167-9a56-bfed2a71d3b7', (SELECT id FROM level_info WHERE level_name = 'Dorchester Heights'), 'melee', 2),
-('dd6f165f-ddb5-524a-88a2-9688f4428b77', (SELECT id FROM level_info WHERE level_name = 'Dorchester Heights'), 'artillery', 1);
+('93568ef6-d56a-5167-9a56-bfed2a71d3b7', (SELECT id FROM level_info WHERE level_name = 'Dorchester Heights'), 'melee', 2);
 
 COMMIT;

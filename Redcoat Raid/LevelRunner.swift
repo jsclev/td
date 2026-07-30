@@ -23,24 +23,37 @@ enum TowerKind: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Asset-catalog sprite for the built tower. Nil until the tower kind has
-    /// art (magic doesn't yet).
+    /// Asset-catalog sprite for the built tower.
     var assetName: String? {
         switch self {
         case .ranged: return "minuteman_post"
         case .melee: return "militia_barracks"
         case .artillery: return "field_cannon"
-        case .magic: return nil
+        case .magic: return "ranger_outpost"
         }
     }
 
-    /// SF Symbol shown in the build menu for kinds without sprite art.
-    var symbolName: String {
+    /// Icon shown on a radial-menu bubble (build and upgrade menus). Level 1
+    /// art for every tower level until per-level upgrade icons exist.
+    var menuIconName: String {
         switch self {
-        case .ranged: return "scope"
-        case .melee: return "shield.fill"
-        case .artillery: return "burst.fill"
-        case .magic: return "sparkles"
+        case .ranged: return "musketmen_icon"
+        case .melee: return "melee_rebel_militia_icon"
+        case .artillery: return "artillery_cannon_icon"
+        case .magic: return "special_forces_spy_icon"
+        }
+    }
+
+    /// Rendered height of the built tower's sprite, in map-image pixels.
+    /// Per kind because the art's aspect ratios differ widely (the cannon is
+    /// low and wide, the barracks tall); these heights give every tower a
+    /// similar base width, matched to the ~80px slot pads.
+    var spriteHeightInImagePixels: CGFloat {
+        switch self {
+        case .ranged: return 80
+        case .melee: return 88
+        case .artillery: return 52
+        case .magic: return 76
         }
     }
 
@@ -117,9 +130,6 @@ final class LevelRunner: NSObject, ObservableObject {
 
     /// Rendered height of the enemy sprite, in map-image pixels.
     let spriteHeightInImagePixels: CGFloat = 33.5
-
-    /// Rendered height of a built tower's sprite, in map-image pixels.
-    let towerHeightInImagePixels: CGFloat = 60
 
     /// Tower-slot platform centres, in map-image pixel space, in database order.
     private(set) var slotPositions: [CGPoint] = []

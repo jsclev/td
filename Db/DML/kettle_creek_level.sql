@@ -1190,7 +1190,6 @@ INSERT INTO level_tower_unlock (
     id, level_info_id, tower_kind, max_tower_level
 ) VALUES
 ('a422131d-709b-56e6-b6b2-c7e225be67b6', (SELECT id FROM level_info WHERE level_name = 'Kettle Creek'), 'ranged', 3),
-('6ebfeca4-f54a-5ddb-9f02-f019b9eef16e', (SELECT id FROM level_info WHERE level_name = 'Kettle Creek'), 'melee', 2),
-('b641a732-fb67-58ec-9970-b8d8e6fbc5e6', (SELECT id FROM level_info WHERE level_name = 'Kettle Creek'), 'artillery', 1);
+('6ebfeca4-f54a-5ddb-9f02-f019b9eef16e', (SELECT id FROM level_info WHERE level_name = 'Kettle Creek'), 'melee', 2);
 
 COMMIT;

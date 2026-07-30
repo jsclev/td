@@ -908,7 +908,6 @@ INSERT INTO level_tower_unlock (
     id, level_info_id, tower_kind, max_tower_level
 ) VALUES
 ('79a7e2ef-5a3d-527b-82c9-792186144122', '46157f59-b21b-4b03-9151-d404c6cd6d0b', 'ranged', 3),
-('91abece0-25ba-5da7-86d8-e4a11a8f3a66', '46157f59-b21b-4b03-9151-d404c6cd6d0b', 'melee', 2),
-('75e81cff-e49f-5991-9b72-1c604959cfe3', '46157f59-b21b-4b03-9151-d404c6cd6d0b', 'artillery', 1);
+('91abece0-25ba-5da7-86d8-e4a11a8f3a66', '46157f59-b21b-4b03-9151-d404c6cd6d0b', 'melee', 2);
 
 COMMIT;
